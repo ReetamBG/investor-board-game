@@ -20,7 +20,7 @@ const Tile = ({
     <div
       key={tile.id}
       style={{ gridRow, gridColumn }}
-      className="relative w-full h-full flex flex-col justify-between items-center text-center overflow-hidden"
+      className="relative w-full h-full flex flex-col justify-between items-center text-center overflow-hidden scale-[1.03]"
     >
       {/* Background SVG Tile */}
       <img

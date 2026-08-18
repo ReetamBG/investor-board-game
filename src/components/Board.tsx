@@ -1,51 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import { TILES } from "../data/tiles";
-import { getGridPosition } from "../utils/gridPosition";
-import Tile from "./Tile";
+import { createPlayers, movePlayer } from "../game/playerLogic";
+import Die from "./Die";
+import BoardGrid from "./BoardGrid";
 
 const Board = () => {
+  const [gamePlayers, setGamePlayers] = useState(createPlayers);
+  const [activePlayer, setActivePlayer] = useState(0);
+
+  const handleRollDie = () => {
+    const dieRoll = Math.floor(Math.random() * 6) + 1;
+    const currentPlayer = gamePlayers[activePlayer];
+    const nextPosition = movePlayer(currentPlayer.position, dieRoll);
+    const landedTile = TILES[nextPosition];
+
+    setGamePlayers((prevPlayers) =>
+      prevPlayers.map((player, index) =>
+        index === activePlayer ? { ...player, position: nextPosition } : player,
+      ),
+    );
+
+    window.alert(`${currentPlayer.name} rolled ${dieRoll}. ${landedTile.text}`);
+    setActivePlayer((prev) => (prev + 1) % gamePlayers.length);
+  };
+
   return (
-    <div className="flex justify-center items-center bg-black p-6">
-      <div className="grid grid-cols-8 grid-rows-8 aspect-square min-w-3xl max-w-4xl bg-black border border-stone-800 relative">
-        {/* Center Area Container */}
-        <div className="col-start-2 col-span-6 row-start-2 row-span-6 p-6">
-          {/* Inner Wrapper (relative so absolute image stays inside padding) */}
-          <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-xs select-none">
-            {/* Background Image */}
-            <img
-              src="/checkerboard-pattern.svg"
-              alt="Background"
-              className="absolute inset-0 w-full h-full object-cover z-0 brightness-200"
-            />
-
-            {/* Content Layer */}
-            <div className="relative z-10 flex flex-col items-center text-center p-6 text-white">
-              <h1 className="mb-0 leading-none">
-                <span className="text-5xl font-playfair italic block font-medium">
-                  The
-                </span>
-                <span className="font-inter text-8xl">Vault</span>
-              </h1>
-              <p className="text-stone-200 text-sm ">
-                Crack. Grow. Win.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Perimeter Tiles (Must remain inside the grid container) */}
-        {TILES.map((tile, i) => {
-          const { gridRow, gridColumn } = getGridPosition(i, 8);
-          return (
-            <Tile
-              key={tile.id}
-              tile={tile}
-              gridRow={gridRow}
-              gridColumn={gridColumn}
-            />
-          );
-        })}
-      </div>
+    <div className="flex items-start justify-center gap-6 bg-black p-6">
+      <BoardGrid players={gamePlayers} />
+      <Die
+        playerName={gamePlayers[activePlayer].name}
+        handleRollDie={handleRollDie}
+      />
     </div>
   );
 };

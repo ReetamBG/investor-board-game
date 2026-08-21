@@ -6,3 +6,15 @@
   --font-playfair: "Playfair Display", serif;
   --font-inter: "Inter", sans-serif;
 }
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+  background: #000;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+}

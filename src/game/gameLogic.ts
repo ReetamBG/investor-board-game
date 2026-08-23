@@ -19,6 +19,20 @@ export type GamePlayer = Player & {
   investments: Investment[];
 };
 
+/**
+ * UI bridge: lets the pure game logic await player decisions
+ * rendered as shadcn dialogs.
+ */
+export type GameIO = {
+  alert(title: string, description?: string): Promise<void>;
+  askInvest(playerName: string, card: StartupCard): Promise<boolean>;
+  askBailout(
+    playerName: string,
+    card: StartupCard,
+    bailoutsLeft: number,
+  ): Promise<boolean>;
+};
+
 export const STARTING_CASH = 7000;
 export const WINNING_CASH = 25000;
 export const BAILOUT_CASH = 4000;
@@ -42,26 +56,24 @@ export const createGamePlayers = (): GamePlayer[] =>
  * Mutates the player (cash / investments / bailouts) and roundEvents.
  * Returns true if the player just used their FINAL (3rd) bailout card.
  */
-export const resolveTile = (
+export const resolveTile = async (
   player: GamePlayer,
   roundEvents: EventCard[],
-): boolean => {
+  io: GameIO,
+): Promise<boolean> => {
   const tile = TILES[player.position];
 
   switch (tile.category) {
     case "Startup": {
       const card = pickRandom(startupCards);
 
-      const wantsToInvest = window.confirm(
-        `${player.name} drew a Startup Card!\n\n` +
-          `${card.title}\n${card.description}\n\n` +
-          `Risk: ${card.risk}\n` +
-          `Investment required: ${formatCash(card.investmentAmount)}\n\n` +
-          `Do you want to invest? (OK = Yes, Cancel = No)`,
-      );
+      const wantsToInvest = await io.askInvest(player.name, card);
 
       if (!wantsToInvest) {
-        window.alert(`${player.name} chose not to invest.`);
+        await io.alert(
+          "No Investment",
+          `${player.name} chose not to invest in ${card.title}.`,
+        );
         return false;
       }
 
@@ -71,9 +83,9 @@ export const resolveTile = (
           title: card.title,
           amount: card.investmentAmount,
         });
-        window.alert(
-          `${player.name} invested ${formatCash(card.investmentAmount)} in ${card.title}.\n` +
-            `Remaining cash: ${formatCash(player.cash)}`,
+        await io.alert(
+          "Investment Made",
+          `${player.name} invested ${formatCash(card.investmentAmount)} in ${card.title}. Remaining cash: ${formatCash(player.cash)}.`,
         );
         return false;
       }
@@ -83,31 +95,36 @@ export const resolveTile = (
         player.bailoutsLeft > 0 &&
         player.cash + BAILOUT_CASH >= card.investmentAmount;
 
-      if (
-        canAffordWithBailout &&
-        window.confirm(
-          `${player.name} has ${formatCash(player.cash)} but needs ${formatCash(card.investmentAmount)}.\n\n` +
-            `Use a Bailout Card? (+${formatCash(BAILOUT_CASH)})\n` +
-            `${player.bailoutsLeft - 1} will be left after use.`,
-        )
-      ) {
-        player.bailoutsLeft -= 1;
-        player.cash += BAILOUT_CASH;
-        player.cash -= card.investmentAmount;
-        player.investments.push({
-          title: card.title,
-          amount: card.investmentAmount,
-        });
-
-        const usedFinalBailout = player.bailoutsLeft === 0;
-        window.alert(
-          `Bailout Card used! ${player.name} invested ${formatCash(card.investmentAmount)} in ${card.title}.` +
-            (usedFinalBailout ? `\n\nThat was the LAST bailout card! 3 rounds to reach ${formatCash(WINNING_CASH)}!` : ""),
+      if (canAffordWithBailout) {
+        const useBailout = await io.askBailout(
+          player.name,
+          card,
+          player.bailoutsLeft - 1,
         );
-        return usedFinalBailout;
+
+        if (useBailout) {
+          player.bailoutsLeft -= 1;
+          player.cash += BAILOUT_CASH;
+          player.cash -= card.investmentAmount;
+          player.investments.push({
+            title: card.title,
+            amount: card.investmentAmount,
+          });
+
+          const usedFinalBailout = player.bailoutsLeft === 0;
+          await io.alert(
+            usedFinalBailout ? "Last Bailout Card Used!" : "Bailout Card Used",
+            `${player.name} used a Bailout Card (+${formatCash(BAILOUT_CASH)}) and invested ${formatCash(card.investmentAmount)} in ${card.title}.` +
+              (usedFinalBailout
+                ? `\n\nThat was the LAST bailout card! Only 3 rounds left to reach ${formatCash(WINNING_CASH)}!`
+                : ""),
+          );
+          return usedFinalBailout;
+        }
       }
 
-      window.alert(
+      await io.alert(
+        "Skipped",
         `${player.name} cannot afford this investment and skipped it.`,
       );
       return false;
@@ -116,9 +133,7 @@ export const resolveTile = (
     case "Event": {
       const card = pickRandom(eventCards);
       roundEvents.push(card);
-      window.alert(
-        `${player.name} drew an Event Card!\n\n${card.title}\n${card.condition}`,
-      );
+      await io.alert(`Event Card: ${card.title}`, card.condition);
       return false;
     }
 
@@ -129,14 +144,14 @@ export const resolveTile = (
           0,
         );
         player.investments = [];
-        window.alert(
-          `CRASH! ${player.name} lost all current investments ` +
-            `(${formatCash(lostAmount)} across startups). No result cards for them.\n` +
-            `Remaining cash: ${formatCash(player.cash)}`,
+        await io.alert(
+          "CRASH!",
+          `${player.name} lost all current investments (${formatCash(lostAmount)} across startups). No result cards for them. Remaining cash: ${formatCash(player.cash)}.`,
         );
       } else {
-        window.alert(
-          `CRASH! But ${player.name} had no active investments. Nothing lost.`,
+        await io.alert(
+          "CRASH!",
+          `${player.name} had no active investments. Nothing lost.`,
         );
       }
       return false;
@@ -144,18 +159,18 @@ export const resolveTile = (
 
     case "Funding": {
       player.cash += 2000;
-      window.alert(
-        `${player.name} received ${formatCash(2000)} funding!\n` +
-          `New cash: ${formatCash(player.cash)}`,
+      await io.alert(
+        "Funding Received",
+        `${player.name} received ${formatCash(2000)} funding! New cash: ${formatCash(player.cash)}.`,
       );
       return false;
     }
 
     case "Start here →": {
       player.cash += 7000;
-      window.alert(
-        `${player.name} landed on Start and collected ${formatCash(7000)}!\n` +
-          `New cash: ${formatCash(player.cash)}`,
+      await io.alert(
+        "Back to Start",
+        `${player.name} landed on Start and collected ${formatCash(7000)}! New cash: ${formatCash(player.cash)}.`,
       );
       return false;
     }
@@ -167,11 +182,12 @@ export const resolveTile = (
 
 /**
  * End-of-round result phase.
- * Applies event effects + one result card per owned startup, via alerts.
+ * Applies event effects + one result card per owned startup.
  */
-export const playResultPhase = (
+export const playResultPhase = async (
   players: GamePlayer[],
   roundEvents: EventCard[],
+  io: GameIO,
 ) => {
   // Aggregate event effects for this round
   const returnMultiplier = roundEvents
@@ -185,36 +201,37 @@ export const playResultPhase = (
   }, 0);
 
   if (roundEvents.length > 0) {
-    window.alert("--- RESULT PHASE ---");
+    await io.alert("Result Phase", "The round has ended. Resolving results...");
+
     if (eventCashDelta !== 0) {
       players.forEach((p) => {
         p.cash += eventCashDelta;
       });
-      window.alert(
-        `Event effect: every player's cash changed by ${formatCash(eventCashDelta)}.`,
+      await io.alert(
+        "Event Effect",
+        `Every player's cash changed by ${formatCash(eventCashDelta)}.`,
       );
     }
     if (returnMultiplier !== 1) {
-      window.alert(
-        `Event effect: all startup returns this round are multiplied x${returnMultiplier}.`,
+      await io.alert(
+        "Event Effect",
+        `All startup returns this round are multiplied x${returnMultiplier}.`,
       );
     }
   }
 
-  players.forEach((player) => {
-    player.investments.forEach((investment) => {
+  for (const player of players) {
+    for (const investment of player.investments) {
       const card = pickRandom(resultCards);
       const baseReturn = investment.amount * card.effectValue;
       const totalReturn = baseReturn * returnMultiplier;
       player.cash += totalReturn;
 
-      window.alert(
-        `${player.name} - ${investment.title} (${formatCash(investment.amount)}):\n` +
-          `Result Card: ${card.title}\n` +
-          `Return: ${formatCash(totalReturn)}\n` +
-          `Total cash: ${formatCash(player.cash)}`,
+      await io.alert(
+        `${card.title} — ${investment.title}`,
+        `${player.name}'s ${investment.title} (${formatCash(investment.amount)}): ${card.description}\n\nReturn: ${formatCash(totalReturn)} • Total cash: ${formatCash(player.cash)}`,
       );
-    });
+    }
     player.investments = [];
-  });
+  }
 };

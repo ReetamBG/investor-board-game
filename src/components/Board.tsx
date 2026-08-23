@@ -1,16 +1,16 @@
-import { useState } from "react";
-import type { EventCard } from "../game/gameLogic";
+import { useRef, useState } from "react";
+import type { EventCard, GameIO, GamePlayer } from "@/game/gameLogic";
 import {
   createGamePlayers,
   formatCash,
   playResultPhase,
   resolveTile,
   WINNING_CASH,
-  type GamePlayer,
-} from "../game/gameLogic";
-import { movePlayer } from "../game/playerLogic";
-import BoardGrid from "./BoardGrid";
-import PlayerPanel from "./PlayerPanel";
+} from "@/game/gameLogic";
+import { movePlayer } from "@/game/playerLogic";
+import BoardGrid from "@/components/BoardGrid";
+import GameDialog, { type PendingDialog } from "@/components/GameDialog";
+import PlayerPanel from "@/components/PlayerPanel";
 
 const Board = () => {
   const [gamePlayers, setGamePlayers] = useState(createGamePlayers);
@@ -23,104 +23,164 @@ const Board = () => {
     2: null,
   });
   const [winner, setWinner] = useState<GamePlayer | null>(null);
+  const [busy, setBusy] = useState(false);
   // Player on final bailout countdown: rounds remaining (starts at 3)
   const [countdownPlayerId, setCountdownPlayerId] = useState<number | null>(
     null,
   );
   const [countdownRounds, setCountdownRounds] = useState(0);
 
-  const handleRollDie = () => {
-    if (winner) return;
+  const [pendingDialog, setPendingDialog] = useState<PendingDialog | null>(
+    null,
+  );
+  const resolverRef = useRef<((value?: boolean) => void) | null>(null);
 
-    const dieRoll = Math.floor(Math.random() * 6) + 1;
-    const playersCopy: GamePlayer[] = gamePlayers.map((p) => ({
-      ...p,
-      investments: p.investments.map((inv) => ({ ...inv })),
-    }));
-    const eventsCopy = [...roundEvents];
-    const currentPlayer = playersCopy[activePlayer];
+  /** Closes the current dialog and resumes the paused game logic. */
+  const settleDialog = (value?: boolean) => {
+    const resolver = resolverRef.current;
+    resolverRef.current = null;
+    setPendingDialog(null);
+    resolver?.(value);
+  };
 
-    currentPlayer.position = movePlayer(currentPlayer.position, dieRoll);
+  const handleRollDie = async () => {
+    if (winner || busy) return;
+    setBusy(true);
 
-    // Resolve the landed tile
-    const usedFinalBailout = resolveTile(currentPlayer, eventsCopy);
+    try {
+      const dieRoll = Math.floor(Math.random() * 6) + 1;
+      const playersCopy: GamePlayer[] = gamePlayers.map((p) => ({
+        ...p,
+        investments: p.investments.map((inv) => ({ ...inv })),
+      }));
+      const eventsCopy = [...roundEvents];
+      const currentPlayer = playersCopy[activePlayer];
 
-    setLastRolls((prev) => ({ ...prev, [currentPlayer.id]: dieRoll }));
+      currentPlayer.position = movePlayer(currentPlayer.position, dieRoll);
+      setLastRolls((prev) => ({ ...prev, [currentPlayer.id]: dieRoll }));
 
-    let nextCountdownPlayerId = countdownPlayerId;
-    let nextCountdownRounds = countdownRounds;
-    if (usedFinalBailout) {
-      nextCountdownPlayerId = currentPlayer.id;
-      nextCountdownRounds = 3;
-      setCountdownPlayerId(nextCountdownPlayerId);
-      setCountdownRounds(nextCountdownRounds);
-    }
-
-    // Immediate win check
-    const immediateWinner = playersCopy.find(
-      (p) => p.cash >= WINNING_CASH,
-    );
-    if (immediateWinner) {
-      setGamePlayers(playersCopy);
-      setRoundEvents(eventsCopy);
-      setWinner(immediateWinner);
-      window.alert(
-        `${immediateWinner.name} wins with ${formatCash(immediateWinner.cash)}!`,
+      const usedFinalBailout = await resolveTile(
+        currentPlayer,
+        eventsCopy,
+        ioWithPlayers(playersCopy),
       );
-      return;
-    }
 
-    const nextTurn = turnCount + 1;
+      let nextCountdownPlayerId = countdownPlayerId;
+      let nextCountdownRounds = countdownRounds;
+      if (usedFinalBailout) {
+        nextCountdownPlayerId = currentPlayer.id;
+        nextCountdownRounds = 3;
+        setCountdownPlayerId(nextCountdownPlayerId);
+        setCountdownRounds(nextCountdownRounds);
+      }
 
-    if (nextTurn % 4 === 0) {
-      // Round complete -> Result Phase
-      playResultPhase(playersCopy, eventsCopy);
+      const commitState = () => {
+        setGamePlayers(playersCopy);
+        setRoundEvents(eventsCopy);
+      };
 
-      // Win check after results
-      const resultWinner =
+      // Immediate win check
+      const immediateWinner =
         playersCopy.find((p) => p.cash >= WINNING_CASH) || null;
-
-      // Bailout countdown handling at end of round
-      let loser: GamePlayer | null = null;
-      if (!resultWinner && nextCountdownPlayerId !== null) {
-        const remaining = nextCountdownRounds - 1;
-        const countdownPlayer = playersCopy.find(
-          (p) => p.id === nextCountdownPlayerId,
+      if (immediateWinner) {
+        commitState();
+        setWinner(immediateWinner);
+        await ioWithPlayers(playersCopy).alert(
+          "We Have a Winner!",
+          `${immediateWinner.name} wins with ${formatCash(immediateWinner.cash)}!`,
         );
-        if (remaining <= 0 && countdownPlayer && countdownPlayer.cash < WINNING_CASH) {
-          loser = playersCopy.find((p) => p.id !== nextCountdownPlayerId)!;
-        } else {
-          nextCountdownRounds = remaining;
-          setCountdownRounds(remaining);
-          window.alert(
-            `${countdownPlayer?.name} has ${remaining} round(s) left to reach ${formatCash(WINNING_CASH)}!`,
+        return;
+      }
+
+      const nextTurn = turnCount + 1;
+
+      if (nextTurn % 4 === 0) {
+        // Round complete -> Result Phase
+        const phaseIO = ioWithPlayers(playersCopy);
+        await playResultPhase(playersCopy, eventsCopy, phaseIO);
+
+        const resultWinner =
+          playersCopy.find((p) => p.cash >= WINNING_CASH) || null;
+
+        let loser: GamePlayer | null = null;
+        if (!resultWinner && nextCountdownPlayerId !== null) {
+          const remaining = nextCountdownRounds - 1;
+          const countdownPlayer = playersCopy.find(
+            (p) => p.id === nextCountdownPlayerId,
+          );
+          if (
+            remaining <= 0 &&
+            countdownPlayer &&
+            countdownPlayer.cash < WINNING_CASH
+          ) {
+            loser = playersCopy.find((p) => p.id !== nextCountdownPlayerId)!;
+          } else {
+            nextCountdownRounds = remaining;
+            setCountdownRounds(remaining);
+            await phaseIO.alert(
+              "Countdown",
+              `${countdownPlayer?.name} has ${remaining} round(s) left to reach ${formatCash(WINNING_CASH)}!`,
+            );
+          }
+        }
+
+        commitState();
+        setRoundEvents([]);
+        setTurnCount(nextTurn);
+        setRoundNumber((r) => r + 1);
+        setActivePlayer(0);
+
+        const finalWinner = resultWinner || loser;
+        if (finalWinner) {
+          setCountdownPlayerId(null);
+          setWinner(finalWinner);
+          await ioWithPlayers(playersCopy).alert(
+            resultWinner ? "We Have a Winner!" : "Time's Up!",
+            resultWinner
+              ? `${resultWinner.name} wins with ${formatCash(resultWinner.cash)}!`
+              : `${loser?.name} wins because the other player ran out of bailout rounds.`,
           );
         }
+      } else {
+        commitState();
+        setTurnCount(nextTurn);
+        setActivePlayer((prev) => (prev + 1) % playersCopy.length);
       }
-
-      setGamePlayers(playersCopy);
-      setRoundEvents([]);
-      setTurnCount(nextTurn);
-      setRoundNumber((r) => r + 1);
-      setActivePlayer(0);
-
-      const finalWinner = resultWinner || loser;
-      if (finalWinner) {
-        setCountdownPlayerId(null);
-        setWinner(finalWinner);
-        window.alert(
-          resultWinner
-            ? `${resultWinner.name} wins with ${formatCash(resultWinner.cash)}!`
-            : `Time's up! ${loser?.name} wins because the other player ran out of bailout rounds.`,
-        );
-      }
-    } else {
-      setGamePlayers(playersCopy);
-      setRoundEvents(eventsCopy);
-      setTurnCount(nextTurn);
-      setActivePlayer((prev) => (prev + 1) % playersCopy.length);
+    } finally {
+      setBusy(false);
     }
   };
+
+  /**
+   * IO bound to a working copy of players so dialogs show
+   * up-to-date cash during multi-step resolution.
+   */
+  const ioWithPlayers = (players: GamePlayer[]): GameIO => ({
+    alert: (title, description) =>
+      new Promise<void>((resolve) => {
+        resolverRef.current = () => resolve();
+        setPendingDialog({ kind: "alert", title, description });
+      }),
+    askInvest: (playerName, card) =>
+      new Promise<boolean>((resolve) => {
+        resolverRef.current = (value) => resolve(Boolean(value));
+        setPendingDialog({
+          kind: "invest",
+          card,
+          player: players.find((p) => p.name === playerName)!,
+        });
+      }),
+    askBailout: (playerName, card, bailoutsLeft) =>
+      new Promise<boolean>((resolve) => {
+        resolverRef.current = (value) => resolve(Boolean(value));
+        setPendingDialog({
+          kind: "bailout",
+          card,
+          bailoutsLeft,
+          player: players.find((p) => p.name === playerName)!,
+        });
+      }),
+  });
 
   return (
     <main className="min-h-screen w-full bg-black text-white">
@@ -128,7 +188,7 @@ const Board = () => {
         {/* Player A */}
         <PlayerPanel
           player={gamePlayers[0]}
-          isActive={!winner && activePlayer === 0}
+          isActive={!winner && !busy && activePlayer === 0}
           lastRoll={lastRolls[gamePlayers[0].id] ?? null}
           onRoll={handleRollDie}
         />
@@ -155,10 +215,12 @@ const Board = () => {
         {/* Player B */}
         <PlayerPanel
           player={gamePlayers[1]}
-          isActive={!winner && activePlayer === 1}
+          isActive={!winner && !busy && activePlayer === 1}
           lastRoll={lastRolls[gamePlayers[1].id] ?? null}
           onRoll={handleRollDie}
         />
+
+        <GameDialog dialog={pendingDialog} onSettle={settleDialog} />
       </div>
     </main>
   );

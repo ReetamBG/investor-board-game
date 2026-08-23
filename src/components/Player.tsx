@@ -1,5 +1,5 @@
 import React from "react";
-import { Player } from "../game/playerLogic";
+import type { Player } from "../game/playerLogic";
 import { getGridPosition } from "../utils/gridPosition";
 
 const Player = ({ player }: { player: Player }) => {

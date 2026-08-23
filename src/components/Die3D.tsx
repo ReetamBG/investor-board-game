@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import "./Die3D.css";
 
 type Die3DProps = {
@@ -27,20 +27,25 @@ const FACES: { dots: string[] }[] = [
 ];
 
 const Die3D = ({ value }: Die3DProps) => {
-  const shown = value ?? 1;
-  const [spins, setSpins] = useState(0);
-  const prevValue = useRef(value);
+  const [state, setState] = useState<{ value: number | null; spins: number }>({
+    value,
+    spins: 0,
+  });
 
-  // Extra full turns so consecutive equal rolls still animate
-  useEffect(() => {
-    if (value !== null && value !== prevValue.current) {
-      setSpins((s) => s + 1);
-    }
-    prevValue.current = value;
-  }, [value]);
+  // Adjust state during render so each roll is a SINGLE commit with a
+  // guaranteed-different transform -> CSS transition fires reliably
+  // in both dev and production.
+  if (value !== state.value) {
+    setState({
+      value,
+      spins: value === null ? state.spins : state.spins + 1,
+    });
+  }
 
+  const shown = state.value ?? 1;
   const r = FACE_ROTATIONS[shown];
-  const transform = `rotateX(${r.x + 360 * spins}deg) rotateY(${r.y}deg) rotateZ(${r.z + 360 * spins}deg)`;
+  const s = 360 * state.spins;
+  const transform = `rotateX(${r.x + s}deg) rotateY(${r.y}deg) rotateZ(${r.z + s}deg)`;
 
   return (
     <div className="die3d-scene">

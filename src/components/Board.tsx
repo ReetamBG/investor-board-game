@@ -11,6 +11,8 @@ import { movePlayer } from "@/game/playerLogic";
 import BoardGrid from "@/components/BoardGrid";
 import GameDialog, { type PendingDialog } from "@/components/GameDialog";
 import PlayerPanel from "@/components/PlayerPanel";
+import { PLAYER_MOVE_MS } from "@/components/Player";
+import { DIE_ROLL_MS } from "@/components/Die3D";
 
 const Board = () => {
   const [gamePlayers, setGamePlayers] = useState(createGamePlayers);
@@ -58,6 +60,13 @@ const Board = () => {
 
       currentPlayer.position = movePlayer(currentPlayer.position, dieRoll);
       setLastRolls((prev) => ({ ...prev, [currentPlayer.id]: dieRoll }));
+
+      // Wait for the die roll animation to finish
+      await new Promise((r) => setTimeout(r, DIE_ROLL_MS));
+
+      // Commit the move so the token animates, then wait for it to arrive
+      setGamePlayers(playersCopy);
+      await new Promise((r) => setTimeout(r, PLAYER_MOVE_MS));
 
       const usedFinalBailout = await resolveTile(
         currentPlayer,

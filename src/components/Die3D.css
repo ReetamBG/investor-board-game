@@ -1,0 +1,102 @@
+.die3d-scene {
+  width: 36px;
+  height: 36px;
+  perspective: 260px;
+}
+
+.die3d {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  transform-style: preserve-3d;
+  transition: transform 1s ease-in-out;
+}
+
+.die3d-side {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  background-color: #fff;
+  border-radius: 6px;
+  border: 1px solid #e5e5e5;
+}
+
+/* Face placement */
+.die3d-side:nth-child(1) {
+  transform: translateZ(18px);
+}
+.die3d-side:nth-child(6) {
+  transform: rotateY(90deg) translateZ(18px);
+}
+.die3d-side:nth-child(3) {
+  transform: rotateY(-90deg) translateZ(18px);
+}
+.die3d-side:nth-child(4) {
+  transform: rotateX(90deg) translateZ(18px);
+}
+.die3d-side:nth-child(5) {
+  transform: rotateX(-90deg) translateZ(18px);
+}
+.die3d-side:nth-child(2) {
+  transform: rotateY(-180deg) translateZ(18px);
+}
+
+/* Dots */
+.die3d-dot {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 1.75px 1.75px -3.5px;
+  border-radius: 50%;
+  background-color: #f25f5c;
+  box-shadow: inset 1px 1px #d90429;
+}
+
+.die3d-dot.two-1,
+.die3d-dot.three-1,
+.die3d-dot.four-1,
+.die3d-dot.five-1,
+.die3d-dot.six-1 {
+  top: 20%;
+  left: 20%;
+}
+
+.die3d-dot.four-3,
+.die3d-dot.five-3,
+.die3d-dot.six-4 {
+  top: 20%;
+  left: 80%;
+}
+
+.die3d-dot.one-1,
+.die3d-dot.three-2,
+.die3d-dot.five-5 {
+  top: 50%;
+  left: 50%;
+}
+
+.die3d-dot.four-2,
+.die3d-dot.five-2,
+.die3d-dot.six-3 {
+  top: 80%;
+  left: 20%;
+}
+
+.die3d-dot.two-2,
+.die3d-dot.three-3,
+.die3d-dot.four-4,
+.die3d-dot.five-4,
+.die3d-dot.six-6 {
+  top: 80%;
+  left: 80%;
+}
+
+.die3d-dot.six-2 {
+  top: 50%;
+  left: 20%;
+}
+
+.die3d-dot.six-5 {
+  top: 50%;
+  left: 80%;
+}

@@ -1,5 +1,6 @@
 import React from "react";
 import { formatCash, type GamePlayer } from "../game/gameLogic";
+import Die3D from "./Die3D";
 
 type PlayerPanelProps = {
   player: GamePlayer;
@@ -125,9 +126,7 @@ const PlayerPanel = ({
             Roll Die
           </button>
 
-          <div className="flex h-11 w-16 items-center justify-center rounded-lg border border-stone-700 bg-black text-lg font-semibold">
-            {lastRoll ?? "-"}
-          </div>
+          <Die3D value={lastRoll} />
         </div>
       </section>
 

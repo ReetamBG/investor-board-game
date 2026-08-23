@@ -2,6 +2,7 @@ import React from 'react'
 import { getGridPosition } from '../utils/gridPosition';
 import { TILES } from '../data/tiles';
 import Tile from './Tile';
+// @ts-ignore
 import Player from './Player';
 
 const BoardGrid = ({players}: {players: Player[]}) => {
@@ -36,7 +37,7 @@ const BoardGrid = ({players}: {players: Player[]}) => {
               </div>
 
               {/* Cards */}
-              <div className="mt-10 grid w-full max-w-[430px] grid-cols-3 gap-4">
+              <div className="mt-10 grid w-full max-w-107.5 grid-cols-3 gap-4">
                 {/* Startup Cards */}
                 <div className="flex flex-col items-center">
                   <p className="mb-3 text-xs font-medium text-stone-300">

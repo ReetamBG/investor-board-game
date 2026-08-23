@@ -19,14 +19,48 @@ const BoardGrid = ({players}: {players: Player[]}) => {
             />
 
             {/* Content Layer */}
-            <div className="relative z-10 flex flex-col items-center text-center p-6 text-white">
-              <h1 className="mb-0 leading-none">
-                <span className="text-5xl font-playfair italic block font-medium">
-                  The
-                </span>
-                <span className="font-inter text-8xl">Vault</span>
-              </h1>
-              <p className="text-stone-200 text-sm ">Crack. Grow. Win.</p>
+            <div className="relative z-10 flex h-full w-full flex-col items-center justify-center p-6 text-white">
+              {/* Logo */}
+              <div className="flex flex-col items-center text-center">
+                <h1 className="mb-0 leading-none">
+                  <span className="block font-playfair text-5xl font-medium italic">
+                    The
+                  </span>
+                  <span className="font-inter text-7xl font-semibold">
+                    Vault
+                  </span>
+                </h1>
+                <p className="mt-1 text-sm text-stone-200">
+                  Crack. Grow. Win.
+                </p>
+              </div>
+
+              {/* Cards */}
+              <div className="mt-10 grid w-full max-w-[430px] grid-cols-3 gap-4">
+                {/* Startup Cards */}
+                <div className="flex flex-col items-center">
+                  <p className="mb-3 text-xs font-medium text-stone-300">
+                    Startup Cards
+                  </p>
+                  <div className="h-48 w-full rounded-lg bg-[#202020] shadow-lg shadow-black/30" />
+                </div>
+
+                {/* Event Cards */}
+                <div className="flex flex-col items-center">
+                  <p className="mb-3 text-xs font-medium text-stone-300">
+                    Event Cards
+                  </p>
+                  <div className="h-48 w-full rounded-lg bg-[#202020] shadow-lg shadow-black/30" />
+                </div>
+
+                {/* Result Cards */}
+                <div className="flex flex-col items-center">
+                  <p className="mb-3 text-xs font-medium text-stone-300">
+                    Result Cards
+                  </p>
+                  <div className="h-48 w-full rounded-lg bg-[#202020] shadow-lg shadow-black/30" />
+                </div>
+              </div>
             </div>
           </div>
         </div>

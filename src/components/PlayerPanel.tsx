@@ -1,15 +1,17 @@
 import React from "react";
-import { Player } from "../game/playerLogic";
+import { formatCash, type GamePlayer } from "../game/gameLogic";
 
 type PlayerPanelProps = {
-  player: Player;
+  player: GamePlayer;
   isActive: boolean;
+  lastRoll: number | null;
   onRoll: () => void;
 };
 
 const PlayerPanel = ({
   player,
   isActive,
+  lastRoll,
   onRoll,
 }: PlayerPanelProps) => {
   const isPlayerOne = player.id === 1;
@@ -39,7 +41,7 @@ const PlayerPanel = ({
 
         <div className="flex h-14 items-center rounded-lg border border-stone-700 bg-black px-4">
           <span className="font-inter text-2xl font-medium tracking-tight">
-            $7,000
+            {formatCash(player.cash)}
           </span>
         </div>
       </section>
@@ -50,7 +52,7 @@ const PlayerPanel = ({
           <p className="text-sm text-stone-300">Bailout Cards</p>
 
           <span className="text-xs text-stone-500">
-            3 Left
+            {player.bailoutsLeft} Left
           </span>
         </div>
 
@@ -59,9 +61,11 @@ const PlayerPanel = ({
             <div
               key={card}
               className={`h-10 flex-1 rounded-md border ${
-                isPlayerOne
-                  ? "border-emerald-400/70 bg-emerald-400"
-                  : "border-blue-500/70 bg-blue-500"
+                card < player.bailoutsLeft
+                  ? isPlayerOne
+                    ? "border-emerald-400/70 bg-emerald-400"
+                    : "border-blue-500/70 bg-blue-500"
+                  : "border-stone-800 bg-stone-900 opacity-40"
               }`}
             />
           ))}
@@ -76,8 +80,30 @@ const PlayerPanel = ({
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="h-40 rounded-lg bg-[#202020]" />
-          <div className="h-40 rounded-lg bg-[#202020]" />
+          {[0, 1].map((slot) => {
+            const investment = player.investments[slot];
+            return (
+              <div
+                key={slot}
+                className={`flex h-40 flex-col justify-between rounded-lg p-3 ${
+                  investment ? "bg-[#202020]" : "bg-[#141414]"
+                }`}
+              >
+                {investment ? (
+                  <>
+                    <p className="text-sm font-semibold leading-tight">
+                      {investment.title}
+                    </p>
+                    <p className="text-sm text-stone-300">
+                      {formatCash(investment.amount)}
+                    </p>
+                  </>
+                ) : (
+                  <p className="m-auto text-xs text-stone-600">Empty</p>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -100,7 +126,7 @@ const PlayerPanel = ({
           </button>
 
           <div className="flex h-11 w-16 items-center justify-center rounded-lg border border-stone-700 bg-black text-lg font-semibold">
-            -
+            {lastRoll ?? "-"}
           </div>
         </div>
       </section>
@@ -110,8 +136,15 @@ const PlayerPanel = ({
         <p className="mb-3 text-sm text-stone-300">Result</p>
 
         <div className="space-y-2 text-base text-white">
-          <p>1. Money 2x</p>
-          <p>2. Breakeven</p>
+          {player.investments.length > 0 ? (
+            player.investments.map((inv, i) => (
+              <p key={i}>
+                {i + 1}. {inv.title} ({formatCash(inv.amount)})
+              </p>
+            ))
+          ) : (
+            <p className="text-sm text-stone-500">No active startups</p>
+          )}
         </div>
       </section>
     </aside>

@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 179.44 265.55">
+  <defs>
+    <style>
+      .cls-1 {
+        font-size: 13.5px;
+        letter-spacing: 0em;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4, .cls-5, .cls-6, .cls-7, .cls-8, .cls-9, .cls-10, .cls-11 {
+        font-family: NHaasGroteskDSPro-55Rg, 'Neue Haas Grotesk Display Pro';
+      }
+
+      .cls-12, .cls-13, .cls-14, .cls-2, .cls-15, .cls-16 {
+        font-size: 12.59px;
+      }
+
+      .cls-12, .cls-13, .cls-14, .cls-15, .cls-16, .cls-17 {
+        font-weight: 500;
+      }
+
+      .cls-12, .cls-13, .cls-15, .cls-16 {
+        font-family: PlayfairDisplayItalic-Medium, 'Playfair Display';
+        font-variation-settings: 'wght' 500;
+      }
+
+      .cls-13 {
+        letter-spacing: 0em;
+      }
+
+      .cls-14, .cls-18, .cls-19, .cls-20, .cls-21, .cls-10, .cls-22 {
+        fill: #fff;
+      }
+
+      .cls-14, .cls-17 {
+        font-family: NHaasGroteskDSPro-65Md, 'Neue Haas Grotesk Display Pro';
+      }
+
+      .cls-23 {
+        letter-spacing: .16em;
+      }
+
+      .cls-24 {
+        fill: url(#linear-gradient);
+        opacity: .18;
+      }
+
+      .cls-3 {
+        letter-spacing: 0em;
+      }
+
+      .cls-25, .cls-16 {
+        letter-spacing: 0em;
+      }
+
+      .cls-26 {
+        letter-spacing: 0em;
+      }
+
+      .cls-18 {
+        stroke: #e1e1e1;
+        stroke-width: .75px;
+      }
+
+      .cls-18, .cls-27 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-4 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-5 {
+        letter-spacing: 0em;
+      }
+
+      .cls-28 {
+        font-family: PlayfairDisplayItalic-SemiBold, 'Playfair Display';
+        font-variation-settings: 'wght' 600;
+        font-weight: 600;
+      }
+
+      .cls-20 {
+        filter: url(#drop-shadow-3);
+      }
+
+      .cls-21 {
+        filter: url(#drop-shadow-5);
+      }
+
+      .cls-6 {
+        filter: url(#drop-shadow-2);
+      }
+
+      .cls-6, .cls-7, .cls-8 {
+        fill: #333;
+        font-size: 86.77px;
+        opacity: .4;
+      }
+
+      .cls-7 {
+        filter: url(#drop-shadow-1);
+      }
+
+      .cls-8 {
+        filter: url(#drop-shadow-4);
+      }
+
+      .cls-15 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-10 {
+        font-size: 6.29px;
+      }
+
+      .cls-29 {
+        letter-spacing: -.06em;
+      }
+
+      .cls-11 {
+        fill: #e5e5e4;
+        font-size: 6.03px;
+      }
+
+      .cls-30 {
+        letter-spacing: -.06em;
+      }
+
+      .cls-31 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-32 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-33 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-34 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-35 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-27 {
+        fill: none;
+        opacity: .6;
+        stroke: #fff;
+      }
+
+      .cls-36 {
+        letter-spacing: 0em;
+      }
+
+      .cls-37 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-38 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-39 {
+        letter-spacing: 0em;
+      }
+
+      .cls-40 {
+        letter-spacing: 0em;
+      }
+
+      .cls-22 {
+        font-size: 9.44px;
+      }
+
+      .cls-41 {
+        letter-spacing: 0em;
+      }
+
+      .cls-42 {
+        letter-spacing: 0em;
+      }
+
+      .cls-43 {
+        letter-spacing: .08em;
+      }
+
+      .cls-44 {
+        letter-spacing: .08em;
+      }
+
+      .cls-17 {
+        fill: #92d2c9;
+        font-size: 18.88px;
+      }
+
+      .cls-45 {
+        letter-spacing: 0em;
+      }
+
+      .cls-46 {
+        letter-spacing: 0em;
+      }
+
+      .cls-47 {
+        letter-spacing: 0em;
+      }
+    </style>
+    <filter id="drop-shadow-1" filterUnits="userSpaceOnUse">
+      <feOffset dx="0" dy="0"/>
+      <feGaussianBlur result="blur" stdDeviation="22"/>
+      <feFlood flood-color="#000" flood-opacity=".75"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="drop-shadow-2" filterUnits="userSpaceOnUse">
+      <feOffset dx="0" dy="0"/>
+      <feGaussianBlur result="blur-2" stdDeviation="22"/>
+      <feFlood flood-color="#000" flood-opacity=".75"/>
+      <feComposite in2="blur-2" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="drop-shadow-3" filterUnits="userSpaceOnUse">
+      <feOffset dx="0" dy="0"/>
+      <feGaussianBlur result="blur-3" stdDeviation="22"/>
+      <feFlood flood-color="#000" flood-opacity=".75"/>
+      <feComposite in2="blur-3" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="drop-shadow-4" filterUnits="userSpaceOnUse">
+      <feOffset dx="0" dy="0"/>
+      <feGaussianBlur result="blur-4" stdDeviation="22"/>
+      <feFlood flood-color="#000" flood-opacity=".75"/>
+      <feComposite in2="blur-4" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <linearGradient id="linear-gradient" x1="89.73" y1="1.43" x2="89.73" y2="264.86" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000"/>
+    </linearGradient>
+    <filter id="drop-shadow-5" filterUnits="userSpaceOnUse">
+      <feOffset dx="0" dy="0"/>
+      <feGaussianBlur result="blur-5" stdDeviation="22"/>
+      <feFlood flood-color="#000" flood-opacity=".75"/>
+      <feComposite in2="blur-5" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <text class="cls-7" transform="translate(-204.92 265.22)"><tspan class="cls-30" x="0" y="0">V</tspan><tspan x="48.5" y="0">ault</tspan></text>
+  <g>
+    <text class="cls-6" transform="translate(201.65 265.17)"><tspan class="cls-30" x="0" y="0">V</tspan><tspan x="48.5" y="0">ault</tspan></text>
+    <text class="cls-20" transform="translate(215.81 61.83)"><tspan class="cls-2" x="0" y="0">Startup</tspan><tspan class="cls-1" x="39.83" y="0"> </tspan><tspan class="cls-13" x="41.98" y="0">C</tspan><tspan class="cls-16" x="50.49" y="0">a</tspan><tspan class="cls-15" x="57.22" y="0">r</tspan><tspan class="cls-12" x="62.54" y="0">d</tspan></text>
+  </g>
+  <g>
+    <g>
+      <polygon points="81.12 0 81.12 0 20.97 0 20.97 0 -.01 0 -.01 72.3 -.01 171.18 -.01 265.55 98.31 265.55 98.31 265.55 158.45 265.55 158.46 265.55 179.44 265.55 179.44 193.24 179.44 94.36 179.44 0 81.12 0"/>
+      <text class="cls-8" transform="translate(.3 265.18)"><tspan class="cls-30" x="0" y="0">V</tspan><tspan x="48.5" y="0">ault</tspan></text>
+      <rect class="cls-24" x=".01" y=".08" width="179.43" height="265.53"/>
+    </g>
+    <g>
+      <g>
+        <g>
+          <text class="cls-10" transform="translate(14.71 116.23)"><tspan class="cls-42" x="0" y="0">Gl</tspan><tspan class="cls-37" x="5.88" y="0">o</tspan><tspan class="cls-42" x="9.28" y="0">w</tspan><tspan class="cls-43" x="13.88" y="0"> </tspan><tspan class="cls-38" x="15.37" y="0">K</tspan><tspan class="cls-42" x="19.35" y="0">art</tspan><tspan class="cls-43" x="26.61" y="0"> </tspan><tspan class="cls-42" x="28.09" y="0">brings</tspan><tspan class="cls-43" x="44.59" y="0"> </tspan><tspan class="cls-42" x="46.07" y="0">beauty</tspan><tspan class="cls-43" x="64.3" y="0"> </tspan><tspan class="cls-42" x="65.79" y="0">and</tspan><tspan class="cls-44" x="75.76" y="0"> </tspan><tspan class="cls-41" x="77.25" y="0">skin</tspan><tspan class="cls-47" x="87.81" y="0">c</tspan><tspan class="cls-41" x="91.12" y="0">a</tspan><tspan class="cls-31" x="94.32" y="0">r</tspan><tspan class="cls-42" x="96.34" y="0">e</tspan><tspan class="cls-43" x="99.68" y="0"> </tspan><tspan class="cls-42" x="101.17" y="0">es</tspan><tspan class="cls-46" x="107.5" y="0">s</tspan><tspan class="cls-41" x="110.56" y="0">e</tspan><tspan class="cls-37" x="113.9" y="0">n</tspan><tspan class="cls-42" x="117.15" y="0">tials</tspan><tspan class="cls-43" x="127.68" y="0"> </tspan><tspan class="cls-42" x="129.17" y="0">rig</tspan><tspan class="cls-37" x="135.9" y="0">h</tspan><tspan class="cls-42" x="139.15" y="0">t</tspan><tspan class="cls-44" x="141.07" y="0"> </tspan><tspan class="cls-36" x="142.56" y="0">t</tspan><tspan class="cls-42" x="144.44" y="0">o </tspan><tspan class="cls-38" x="0" y="9.44">y</tspan><tspan class="cls-42" x="3" y="9.44">our</tspan><tspan class="cls-23" x="11.86" y="9.44"> </tspan><tspan class="cls-42" x="13.84" y="9.44">fingertips.</tspan><tspan class="cls-23" x="39.73" y="9.44"> </tspan><tspan class="cls-42" x="41.71" y="9.44">Cu</tspan><tspan class="cls-31" x="49.42" y="9.44">r</tspan><tspan class="cls-37" x="51.44" y="9.44">a</tspan><tspan class="cls-40" x="54.57" y="9.44">t</tspan><tspan class="cls-42" x="56.46" y="9.44">ed</tspan><tspan class="cls-23" x="63.27" y="9.44"> </tspan><tspan class="cls-42" x="65.25" y="9.44">pic</tspan><tspan class="cls-34" x="73.15" y="9.44">k</tspan><tspan class="cls-42" x="76.12" y="9.44">s,</tspan><tspan class="cls-23" x="80.27" y="9.44"> </tspan><tspan class="cls-42" x="82.25" y="9.44">tru</tspan><tspan class="cls-37" x="89.57" y="9.44">s</tspan><tspan class="cls-39" x="92.5" y="9.44">t</tspan><tspan class="cls-41" x="94.39" y="9.44">ed</tspan><tspan class="cls-23" x="101.2" y="9.44"> </tspan><tspan class="cls-42" x="103.18" y="9.44">qualit</tspan><tspan class="cls-29" x="117.43" y="9.44">y</tspan><tspan class="cls-42" x="120.12" y="9.44">,</tspan><tspan class="cls-23" x="121.27" y="9.44"> </tspan><tspan class="cls-38" x="123.25" y="9.44">e</tspan><tspan class="cls-35" x="126.53" y="9.44">ff</tspan><tspan class="cls-42" x="129.82" y="9.44">ortless </tspan><tspan class="cls-42" x="0" y="18.88">shopping. Gl</tspan><tspan class="cls-38" x="32.61" y="18.88">o</tspan><tspan class="cls-42" x="36" y="18.88">w made simpl</tspan><tspan class="cls-38" x="71.43" y="18.88">e</tspan><tspan class="cls-42" x="74.71" y="18.88">..</tspan></text>
+          <g>
+            <text class="cls-14" transform="translate(14.71 101.69)"><tspan x="0" y="0">Gl</tspan><tspan class="cls-33" x="12.11" y="0">o</tspan><tspan class="cls-25" x="19.14" y="0">w </tspan><tspan class="cls-33" x="30.63" y="0">K</tspan><tspan x="38.93" y="0">a</tspan><tspan class="cls-45" x="45.5" y="0">r</tspan><tspan x="49.98" y="0">t</tspan></text>
+            <text class="cls-10" transform="translate(14.71 87.34)"><tspan x="0" y="0">Startup Name:</tspan></text>
+          </g>
+        </g>
+        <g>
+          <g>
+            <text class="cls-11" transform="translate(28.91 160.47)"><tspan x="0" y="0">Medium Risk</tspan></text>
+            <path class="cls-19" d="M20.1,160.85l3.27-5.65,3.27,5.65h-6.55ZM20.71,160.49h5.33l-2.67-4.59-2.67,4.59ZM23.52,159.94s.06-.09.06-.15-.02-.11-.06-.15c-.04-.04-.09-.06-.15-.06s-.11.02-.15.06c-.04.04-.06.09-.06.15s.02.11.06.15c.04.04.09.06.15.06s.11-.02.15-.06ZM23.2,159.22h.35v-1.77h-.35v1.77Z"/>
+          </g>
+          <rect class="cls-27" x="14.71" y="152.38" width="51.8" height="12.52" rx="6.26" ry="6.26"/>
+        </g>
+      </g>
+      <g>
+        <text class="cls-17" transform="translate(14.7 202.95)"><tspan x="0" y="0">Rs. 2</tspan><tspan class="cls-32" x="39.06" y="0">,</tspan><tspan class="cls-26" x="42.8" y="0">000</tspan></text>
+        <text class="cls-22" transform="translate(14.7 183.55)"><tspan class="cls-9" x="0" y="0">I</tspan><tspan class="cls-4" x="2.15" y="0">nv</tspan><tspan class="cls-9" x="11.3" y="0">e</tspan><tspan class="cls-5" x="16.33" y="0">s</tspan><tspan class="cls-3" x="20.75" y="0">tme</tspan><tspan class="cls-5" x="36.17" y="0">n</tspan><tspan class="cls-9" x="41.06" y="0">t</tspan><tspan class="cls-28" x="43.96" y="0" xml:space="preserve"> size</tspan></text>
+      </g>
+    </g>
+    <g>
+      <text class="cls-21" transform="translate(14.46 61.84)"><tspan class="cls-2" x="0" y="0">Startup</tspan><tspan class="cls-1" x="39.83" y="0"> </tspan><tspan class="cls-13" x="41.98" y="0">C</tspan><tspan class="cls-16" x="50.49" y="0">a</tspan><tspan class="cls-15" x="57.22" y="0">r</tspan><tspan class="cls-12" x="62.54" y="0">d</tspan></text>
+      <line class="cls-18" x1="14.8" y1="67.38" x2="167.42" y2="67.38"/>
+    </g>
+  </g>
+</svg>

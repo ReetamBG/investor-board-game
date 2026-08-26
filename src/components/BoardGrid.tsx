@@ -43,7 +43,13 @@ const BoardGrid = ({players}: {players: Player[]}) => {
                   <p className="mb-3 text-xs font-medium text-stone-300">
                     Startup Cards
                   </p>
-                  <div className="h-48 w-full rounded-lg bg-[#202020] shadow-lg shadow-black/30" />
+                  <div className="h-48 w-full rounded-lg overflow-hidden shadow-lg shadow-black/30">
+                    <img
+                      src="/cards/startup_card_front.svg"
+                      alt="Startup Cards"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                 </div>
 
                 {/* Event Cards */}
@@ -51,7 +57,13 @@ const BoardGrid = ({players}: {players: Player[]}) => {
                   <p className="mb-3 text-xs font-medium text-stone-300">
                     Event Cards
                   </p>
-                  <div className="h-48 w-full rounded-lg bg-[#202020] shadow-lg shadow-black/30" />
+                  <div className="h-48 w-full rounded-lg overflow-hidden shadow-lg shadow-black/30">
+                    <img
+                      src="/cards/event_card_front.svg"
+                      alt="Event Cards"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                 </div>
 
                 {/* Result Cards */}
@@ -59,7 +71,13 @@ const BoardGrid = ({players}: {players: Player[]}) => {
                   <p className="mb-3 text-xs font-medium text-stone-300">
                     Result Cards
                   </p>
-                  <div className="h-48 w-full rounded-lg bg-[#202020] shadow-lg shadow-black/30" />
+                  <div className="h-48 w-full rounded-lg overflow-hidden shadow-lg shadow-black/30">
+                    <img
+                      src="/cards/result_card_front.svg"
+                      alt="Result Cards"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

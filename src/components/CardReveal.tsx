@@ -73,18 +73,18 @@ export default function CardReveal({
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center cursor-pointer"
+      className="fixed inset-0 z-50 flex items-center justify-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      onClick={cardType === "startup" ? undefined : dismiss}
     >
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/80" />
 
       {/* Card */}
       <motion.div
-        className="relative z-10"
+        className={`relative z-10 ${cardType !== "startup" && phase === "showing" ? "cursor-pointer" : ""}`}
+        onClick={cardType !== "startup" && phase === "showing" ? dismiss : undefined}
         style={{ perspective: 1200 }}
         initial={{ scale: 0.2, opacity: 0 }}
         animate={{
@@ -103,7 +103,7 @@ export default function CardReveal({
         >
           {/* Front */}
           <div
-            className="absolute inset-0 rounded-xl overflow-hidden shadow-2xl"
+            className="absolute inset-0 rounded-xl overflow-hidden shadow-2xl border-2 border-stone-800"
             style={{ backfaceVisibility: "hidden" }}
           >
             <img
@@ -115,7 +115,7 @@ export default function CardReveal({
 
           {/* Back */}
           <div
-            className="absolute inset-0 rounded-xl overflow-hidden shadow-2xl"
+            className="absolute inset-0 rounded-xl overflow-hidden border-2 border-stone-800 shadow-2xl"
             style={{
               backfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
@@ -156,13 +156,13 @@ export default function CardReveal({
           >
             <button
               onClick={(e) => handleInvest(true, e)}
-              className="rounded-full bg-yellow-300 px-5 py-2 text-sm font-semibold text-black shadow-lg transition hover:bg-yellow-500"
+              className="rounded-sm bg-yellow-300 px-5 py-2 text-sm font-semibold text-black shadow-lg transition hover:bg-yellow-500 hover:cursor-pointer"
             >
               Yes, Invest
             </button>
             <button
               onClick={(e) => handleInvest(false, e)}
-              className="rounded-full bg-teal-500 px-5 py-2 text-sm font-semibold text-black shadow-lg transition hover:bg-teal-700"
+              className="rounded-sm bg-teal-500 px-5 py-2 text-sm font-semibold text-black shadow-lg transition hover:bg-teal-700 hover:cursor-pointer"
             >
               Don't Invest
             </button>

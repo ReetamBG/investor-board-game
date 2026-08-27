@@ -174,8 +174,9 @@ export const playResultPhase = async (
     return sum;
   }, 0);
 
+  await io.alert("Result Phase", "Resolving round results...");
+
   if (roundEvents.length > 0) {
-    await io.alert("Result Phase", "Resolving round results...");
     if (eventCashDelta !== 0) {
       players.forEach((p) => {
         p.cash += eventCashDelta;

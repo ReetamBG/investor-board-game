@@ -9,6 +9,7 @@ export type EventCard = (typeof eventCards)[number];
 export type ResultCard = (typeof resultCards)[number];
 
 export type Investment = {
+  cardId: string;
   title: string;
   amount: number;
 };
@@ -73,6 +74,7 @@ export const resolveTile = async (
       if (player.cash >= card.investmentAmount) {
         player.cash -= card.investmentAmount;
         player.investments.push({
+          cardId: card.id,
           title: card.title,
           amount: card.investmentAmount,
         });
@@ -95,6 +97,7 @@ export const resolveTile = async (
           player.cash += BAILOUT_CASH;
           player.cash -= card.investmentAmount;
           player.investments.push({
+            cardId: card.id,
             title: card.title,
             amount: card.investmentAmount,
           });
@@ -130,7 +133,12 @@ export const resolveTile = async (
         player.investments = [];
         await io.alert(
           "CRASH!",
-          `${player.name} lost all investments (${formatCash(lostAmount)}). Remaining cash: ${formatCash(player.cash)}.`,
+          `${player.name} landed on a crash tile. Lost all investments (${formatCash(lostAmount)}). Resetting startup cards`,
+        );
+      } else {
+        await io.alert(
+          "CRASH!",
+          `${player.name} landed on a crash tile but has no active investments. Nothing lost.`,
         );
       }
       return false;
@@ -186,6 +194,13 @@ export const playResultPhase = async (
   }
 
   for (const player of players) {
+    if (player.investments.length === 0) {
+      await io.alert(
+        "No Investments",
+        `${player.name} has no active startups this round.`,
+      );
+      continue;
+    }
     for (const investment of player.investments) {
       const card = pickRandom(resultCards);
       await io.revealResultCard(card, player.name, investment);

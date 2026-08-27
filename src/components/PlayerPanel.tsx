@@ -1,4 +1,5 @@
-import React from "react";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatCash, type GamePlayer } from "../game/gameLogic";
 import Die3D from "./Die3D";
 
@@ -9,6 +10,36 @@ type PlayerPanelProps = {
   onRoll: () => void;
 };
 
+const scrambleNumber = (target: number, progress: number): string => {
+  if (progress >= 1) return formatCash(target);
+
+  const targetStr = formatCash(target);
+  let result = "";
+  let digitIndex = 0;
+  const totalDigits = targetStr.replace(/[^0-9]/g, "").length;
+
+  for (let i = 0; i < targetStr.length; i++) {
+    const char = targetStr[i];
+
+    if (!/[0-9]/.test(char)) {
+      result += char;
+      continue;
+    }
+
+    const settleThreshold = 0.2 + (digitIndex / totalDigits) * 0.7;
+
+    if (progress > settleThreshold) {
+      result += char;
+    } else {
+      result += Math.floor(Math.random() * 10).toString();
+    }
+
+    digitIndex++;
+  }
+
+  return result;
+};
+
 const PlayerPanel = ({
   player,
   isActive,
@@ -16,6 +47,51 @@ const PlayerPanel = ({
   onRoll,
 }: PlayerPanelProps) => {
   const isPlayerOne = player.id === 1;
+
+  const [displayedValue, setDisplayedValue] = useState(() =>
+    formatCash(player.cash),
+  );
+  const [cashDelta, setCashDelta] = useState<{
+    amount: number;
+    key: number;
+  } | null>(null);
+  const prevCashRef = useRef(player.cash);
+
+  useEffect(() => {
+    if (player.cash !== prevCashRef.current) {
+      const start = prevCashRef.current;
+      const end = player.cash;
+      const delta = end - start;
+
+      setCashDelta({ amount: delta, key: Date.now() });
+
+      const clearTimer = setTimeout(() => setCashDelta(null), 3000);
+
+      const duration = 1500;
+      const startTime = Date.now();
+      let animationId: number;
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+
+        setDisplayedValue(scrambleNumber(end, eased));
+
+        if (progress < 1) {
+          animationId = requestAnimationFrame(animate);
+        }
+      };
+
+      animationId = requestAnimationFrame(animate);
+      prevCashRef.current = player.cash;
+
+      return () => {
+        clearTimeout(clearTimer);
+        cancelAnimationFrame(animationId);
+      };
+    }
+  }, [player.cash]);
 
   return (
     <aside
@@ -40,10 +116,28 @@ const PlayerPanel = ({
       <section className="w-full">
         <p className="mb-2 text-sm text-stone-300">Your Balance</p>
 
-        <div className="flex h-14 items-center rounded-lg border border-stone-700 bg-black px-4">
+        <div className="relative flex h-14 items-center rounded-lg border border-stone-700 bg-black px-4">
           <span className="font-inter text-2xl font-medium tracking-tight">
-            {formatCash(player.cash)}
+            {displayedValue}
           </span>
+
+          <AnimatePresence>
+            {cashDelta && cashDelta.amount !== 0 && (
+              <motion.span
+                key={cashDelta.key}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: -10 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+                className={`absolute -top-3 right-2 text-sm font-bold ${
+                  cashDelta.amount > 0 ? "text-emerald-400" : "text-red-400"
+                }`}
+              >
+                {cashDelta.amount > 0 ? "+" : ""}
+                {cashDelta.amount.toLocaleString("en-IN")}
+              </motion.span>
+            )}
+          </AnimatePresence>
         </div>
       </section>
 
@@ -86,19 +180,16 @@ const PlayerPanel = ({
             return (
               <div
                 key={slot}
-                className={`flex h-40 flex-col justify-between rounded-lg p-3 ${
-                  investment ? "bg-[#202020]" : "bg-[#141414]"
+                className={`flex h-40 flex-col overflow-hidden rounded-lg border-2 ${
+                  investment ? "border-stone-800" : "border-transparent bg-[#141414]"
                 }`}
               >
                 {investment ? (
-                  <>
-                    <p className="text-sm font-semibold leading-tight">
-                      {investment.title}
-                    </p>
-                    <p className="text-sm text-stone-300">
-                      {formatCash(investment.amount)}
-                    </p>
-                  </>
+                  <img
+                    src={`/cards/${investment.cardId}.svg`}
+                    alt={investment.title}
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <p className="m-auto text-xs text-stone-600">Empty</p>
                 )}
@@ -137,9 +228,16 @@ const PlayerPanel = ({
         <div className="space-y-2 text-base text-white">
           {player.investments.length > 0 ? (
             player.investments.map((inv, i) => (
-              <p key={i}>
-                {i + 1}. {inv.title} ({formatCash(inv.amount)})
-              </p>
+              <div key={i} className="flex items-center gap-2">
+                <img
+                  src={`/cards/${inv.cardId}.svg`}
+                  alt={inv.title}
+                  className="h-8 w-6 rounded-sm object-cover"
+                />
+                <span className="text-sm">
+                  {i + 1}. {inv.title}
+                </span>
+              </div>
             ))
           ) : (
             <p className="text-sm text-stone-500">No active startups</p>

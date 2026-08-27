@@ -129,7 +129,24 @@ export default function CardReveal({
           </div>
         </motion.div>
 
-        {/* Invest buttons — startup only */}
+        {/* Player + startup name — result cards only */}
+      {cardType === "result" && investment && phase !== "exiting" && (
+        <motion.div
+          className="absolute -top-14 left-0 right-0 flex flex-col items-center gap-1.5"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <span className="rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-stone-200 backdrop-blur">
+            {playerName}
+          </span>
+          <span className="rounded-full bg-white/10 px-4 py-1 text-xs text-stone-300 backdrop-blur">
+            {investment.title}
+          </span>
+        </motion.div>
+      )}
+
+      {/* Invest buttons — startup only */}
         {cardType === "startup" && phase === "showing" && (
           <motion.div
             className="absolute -top-14 left-0 right-0 flex justify-center gap-3"
@@ -139,15 +156,15 @@ export default function CardReveal({
           >
             <button
               onClick={(e) => handleInvest(true, e)}
-              className="rounded-xs bg-yellow-500 px-5 py-2 text-sm font-semibold text-black shadow-lg transition hover:bg-yellow-400"
+              className="rounded-full bg-yellow-300 px-5 py-2 text-sm font-semibold text-black shadow-lg transition hover:bg-yellow-500"
             >
-              Yes, invest
+              Yes, Invest
             </button>
             <button
               onClick={(e) => handleInvest(false, e)}
-              className="rounded-xs bg-red-800 px-5 py-2 text-sm font-semibold text-stone-200 shadow-lg transition hover:bg-stone-600"
+              className="rounded-full bg-teal-500 px-5 py-2 text-sm font-semibold text-black shadow-lg transition hover:bg-teal-700"
             >
-              Don't invest
+              Don't Invest
             </button>
           </motion.div>
         )}

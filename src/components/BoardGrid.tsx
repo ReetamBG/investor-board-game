@@ -43,7 +43,7 @@ const BoardGrid = ({players}: {players: Player[]}) => {
                   <p className="mb-3 text-xs font-medium text-stone-300">
                     Startup Cards
                   </p>
-                  <div className="h-48 w-full rounded-lg overflow-hidden shadow-lg shadow-black/30">
+                  <div className="h-48 w-full rounded-lg overflow-hidden border-2 border-stone-800 shadow-lg shadow-black/30">
                     <img
                       src="/cards/startup_card_front.svg"
                       alt="Startup Cards"
@@ -57,7 +57,7 @@ const BoardGrid = ({players}: {players: Player[]}) => {
                   <p className="mb-3 text-xs font-medium text-stone-300">
                     Event Cards
                   </p>
-                  <div className="h-48 w-full rounded-lg overflow-hidden shadow-lg shadow-black/30">
+                  <div className="h-48 w-full rounded-lg overflow-hidden border-2 border-stone-800 shadow-lg shadow-black/30">
                     <img
                       src="/cards/event_card_front.svg"
                       alt="Event Cards"
@@ -71,7 +71,7 @@ const BoardGrid = ({players}: {players: Player[]}) => {
                   <p className="mb-3 text-xs font-medium text-stone-300">
                     Result Cards
                   </p>
-                  <div className="h-48 w-full rounded-lg overflow-hidden shadow-lg shadow-black/30">
+                  <div className="h-48 w-full rounded-lg overflow-hidden border-2 border-stone-800 shadow-lg shadow-black/30">
                     <img
                       src="/cards/result_card_front.svg"
                       alt="Result Cards"

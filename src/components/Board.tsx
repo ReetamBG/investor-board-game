@@ -1,4 +1,9 @@
 import { useRef, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import CardReveal from "@/components/CardReveal";
+import BoardGrid from "@/components/BoardGrid";
+import GameDialog, { type PendingDialog } from "@/components/GameDialog";
+import PlayerPanel from "@/components/PlayerPanel";
 import type { EventCard, GameIO, GamePlayer } from "@/game/gameLogic";
 import {
   createGamePlayers,
@@ -8,11 +13,14 @@ import {
   WINNING_CASH,
 } from "@/game/gameLogic";
 import { movePlayer } from "@/game/playerLogic";
-import BoardGrid from "@/components/BoardGrid";
-import GameDialog, { type PendingDialog } from "@/components/GameDialog";
-import PlayerPanel from "@/components/PlayerPanel";
-import { PLAYER_MOVE_MS } from "@/components/Player";
-import { DIE_ROLL_MS } from "@/components/Die3D";
+
+type CardRevealState = {
+  cardType: "startup" | "event" | "result";
+  card: { id: string };
+  playerName: string;
+  investment?: { title: string; amount: number };
+  resolve: (value?: any) => void;
+};
 
 const Board = () => {
   const [gamePlayers, setGamePlayers] = useState(createGamePlayers);
@@ -26,24 +34,71 @@ const Board = () => {
   });
   const [winner, setWinner] = useState<GamePlayer | null>(null);
   const [busy, setBusy] = useState(false);
-  // Player on final bailout countdown: rounds remaining (starts at 3)
   const [countdownPlayerId, setCountdownPlayerId] = useState<number | null>(
     null,
   );
   const [countdownRounds, setCountdownRounds] = useState(0);
 
+  // Card reveal overlay
+  const [cardReveal, setCardReveal] = useState<CardRevealState | null>(null);
+  // Dialog overlay
   const [pendingDialog, setPendingDialog] = useState<PendingDialog | null>(
     null,
   );
   const resolverRef = useRef<((value?: boolean) => void) | null>(null);
 
-  /** Closes the current dialog and resumes the paused game logic. */
   const settleDialog = (value?: boolean) => {
     const resolver = resolverRef.current;
     resolverRef.current = null;
     setPendingDialog(null);
     resolver?.(value);
   };
+
+  const ioWithPlayers = (players: GamePlayer[]): GameIO => ({
+    revealStartupCard: (card, playerName) =>
+      new Promise<boolean>((resolve) => {
+        setCardReveal({
+          cardType: "startup",
+          card,
+          playerName,
+          resolve,
+        });
+      }),
+    revealEventCard: (card, playerName) =>
+      new Promise<void>((resolve) => {
+        setCardReveal({
+          cardType: "event",
+          card,
+          playerName,
+          resolve,
+        });
+      }),
+    revealResultCard: (card, playerName, investment) =>
+      new Promise<void>((resolve) => {
+        setCardReveal({
+          cardType: "result",
+          card,
+          playerName,
+          investment,
+          resolve,
+        });
+      }),
+    alert: (title, description) =>
+      new Promise<void>((resolve) => {
+        resolverRef.current = () => resolve();
+        setPendingDialog({ kind: "alert", title, description });
+      }),
+    askBailout: (playerName, card, bailoutsLeft) =>
+      new Promise<boolean>((resolve) => {
+        resolverRef.current = (value) => resolve(Boolean(value));
+        setPendingDialog({
+          kind: "bailout",
+          card,
+          bailoutsLeft,
+          player: players.find((p) => p.name === playerName)!,
+        });
+      }),
+  });
 
   const handleRollDie = async () => {
     if (winner || busy) return;
@@ -61,12 +116,12 @@ const Board = () => {
       currentPlayer.position = movePlayer(currentPlayer.position, dieRoll);
       setLastRolls((prev) => ({ ...prev, [currentPlayer.id]: dieRoll }));
 
-      // Wait for the die roll animation to finish
-      await new Promise((r) => setTimeout(r, DIE_ROLL_MS));
-
-      // Commit the move so the token animates, then wait for it to arrive
+      // Commit the move so the piece animates to the new tile
       setGamePlayers(playersCopy);
-      await new Promise((r) => setTimeout(r, PLAYER_MOVE_MS));
+      setRoundEvents(eventsCopy);
+
+      // Wait for piece movement animation to finish before resolving tile
+      await new Promise((r) => setTimeout(r, 1200));
 
       const usedFinalBailout = await resolveTile(
         currentPlayer,
@@ -88,23 +143,17 @@ const Board = () => {
         setRoundEvents(eventsCopy);
       };
 
-      // Immediate win check
       const immediateWinner =
         playersCopy.find((p) => p.cash >= WINNING_CASH) || null;
       if (immediateWinner) {
         commitState();
         setWinner(immediateWinner);
-        await ioWithPlayers(playersCopy).alert(
-          "We Have a Winner!",
-          `${immediateWinner.name} wins with ${formatCash(immediateWinner.cash)}!`,
-        );
         return;
       }
 
       const nextTurn = turnCount + 1;
 
       if (nextTurn % 4 === 0) {
-        // Round complete -> Result Phase
         const phaseIO = ioWithPlayers(playersCopy);
         await playResultPhase(playersCopy, eventsCopy, phaseIO);
 
@@ -126,10 +175,6 @@ const Board = () => {
           } else {
             nextCountdownRounds = remaining;
             setCountdownRounds(remaining);
-            await phaseIO.alert(
-              "Countdown",
-              `${countdownPlayer?.name} has ${remaining} round(s) left to reach ${formatCash(WINNING_CASH)}!`,
-            );
           }
         }
 
@@ -143,12 +188,6 @@ const Board = () => {
         if (finalWinner) {
           setCountdownPlayerId(null);
           setWinner(finalWinner);
-          await ioWithPlayers(playersCopy).alert(
-            resultWinner ? "We Have a Winner!" : "Time's Up!",
-            resultWinner
-              ? `${resultWinner.name} wins with ${formatCash(resultWinner.cash)}!`
-              : `${loser?.name} wins because the other player ran out of bailout rounds.`,
-          );
         }
       } else {
         commitState();
@@ -159,37 +198,6 @@ const Board = () => {
       setBusy(false);
     }
   };
-
-  /**
-   * IO bound to a working copy of players so dialogs show
-   * up-to-date cash during multi-step resolution.
-   */
-  const ioWithPlayers = (players: GamePlayer[]): GameIO => ({
-    alert: (title, description) =>
-      new Promise<void>((resolve) => {
-        resolverRef.current = () => resolve();
-        setPendingDialog({ kind: "alert", title, description });
-      }),
-    askInvest: (playerName, card) =>
-      new Promise<boolean>((resolve) => {
-        resolverRef.current = (value) => resolve(Boolean(value));
-        setPendingDialog({
-          kind: "invest",
-          card,
-          player: players.find((p) => p.name === playerName)!,
-        });
-      }),
-    askBailout: (playerName, card, bailoutsLeft) =>
-      new Promise<boolean>((resolve) => {
-        resolverRef.current = (value) => resolve(Boolean(value));
-        setPendingDialog({
-          kind: "bailout",
-          card,
-          bailoutsLeft,
-          player: players.find((p) => p.name === playerName)!,
-        });
-      }),
-  });
 
   return (
     <main className="min-h-screen w-full bg-black text-white">
@@ -215,7 +223,7 @@ const Board = () => {
             )}
             {winner && (
               <span className="ml-2 text-emerald-400">
-                🏆 {winner.name} wins!
+                {winner.name} wins!
               </span>
             )}
           </p>
@@ -228,9 +236,27 @@ const Board = () => {
           lastRoll={lastRolls[gamePlayers[1].id] ?? null}
           onRoll={handleRollDie}
         />
-
-        <GameDialog dialog={pendingDialog} onSettle={settleDialog} />
       </div>
+
+      {/* Card reveal overlay */}
+      <AnimatePresence>
+        {cardReveal && (
+          <CardReveal
+            key={cardReveal.card.id}
+            cardType={cardReveal.cardType}
+            card={cardReveal.card}
+            playerName={cardReveal.playerName}
+            investment={cardReveal.investment}
+            resolve={(value?: any) => {
+              cardReveal.resolve(value);
+              setCardReveal(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Dialog overlay */}
+      <GameDialog dialog={pendingDialog} onSettle={settleDialog} />
     </main>
   );
 };

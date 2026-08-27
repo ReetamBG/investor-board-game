@@ -8,7 +8,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,7 +22,6 @@ import { formatCash, type GamePlayer } from "@/game/gameLogic";
 
 export type PendingDialog =
   | { kind: "alert"; title: string; description?: string }
-  | { kind: "invest"; player: GamePlayer; card: StartupCard }
   | {
       kind: "bailout";
       player: GamePlayer;
@@ -33,7 +31,6 @@ export type PendingDialog =
 
 type GameDialogProps = {
   dialog: PendingDialog | null;
-  /** Clears the dialog and releases the awaiting game logic. */
   onSettle: (value?: boolean) => void;
 };
 
@@ -57,58 +54,6 @@ const GameDialog = ({ dialog, onSettle }: GameDialogProps) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    );
-  }
-
-  if (dialog.kind === "invest") {
-    const { player, card } = dialog;
-    const affordable = player.cash >= card.investmentAmount;
-
-    return (
-      <AlertDialog open onOpenChange={(open) => !open && onSettle(false)}>
-        <AlertDialogContent className="sm:max-w-md [&>button]:hidden">
-          <AlertDialogHeader>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">Startup Card</Badge>
-              <Badge
-                variant={
-                  card.risk === "High"
-                    ? "destructive"
-                    : card.risk === "Medium"
-                      ? "secondary"
-                      : "outline"
-                }
-              >
-                {card.risk} Risk
-              </Badge>
-            </div>
-            <AlertDialogTitle>{card.title}</AlertDialogTitle>
-            <AlertDialogDescription className="whitespace-pre-line">
-              {card.description}
-              {"\n\n"}
-              <span className="font-semibold text-foreground">
-                Investment: {formatCash(card.investmentAmount)}
-              </span>
-              {" • "}
-              Your cash: {formatCash(player.cash)}
-              {!affordable && (
-                <>
-                  {"\n"}
-                  You cannot afford this — a Bailout Card (+₹4,000) can cover it.
-                </>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => onSettle(false)}>
-              No
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={() => onSettle(true)}>
-              Invest
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     );
   }
 

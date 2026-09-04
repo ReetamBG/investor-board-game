@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 import CardReveal from "@/components/CardReveal";
 import BoardGrid from "@/components/BoardGrid";
 import GameDialog, { type PendingDialog } from "@/components/GameDialog";
@@ -21,15 +22,6 @@ type CardRevealState = {
   investment?: { title: string; amount: number };
   resolve: (value?: any) => void;
 };
-
-const confettiColors = [
-  "#facc15",
-  "#22c55e",
-  "#3b82f6",
-  "#f43f5e",
-  "#a855f7",
-  "#fb923c",
-];
 
 const Board = () => {
   const [gamePlayers, setGamePlayers] = useState(createGamePlayers);
@@ -58,6 +50,39 @@ const Board = () => {
     null,
   );
   const resolverRef = useRef<((value?: boolean) => void) | null>(null);
+  const confettiWinnerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!winner) return;
+    if (confettiWinnerRef.current === winner.id) return;
+
+    confettiWinnerRef.current = winner.id;
+    const duration = 1200;
+    const animationEnd = Date.now() + duration;
+
+    const shoot = () => {
+      confetti({
+        particleCount: 2,
+        startVelocity: 30,
+        spread: 45,
+        ticks: 80,
+        origin: { x: 0.2, y: 0.65 },
+      });
+      confetti({
+        particleCount: 2,
+        startVelocity: 30,
+        spread: 45,
+        ticks: 80,
+        origin: { x: 0.8, y: 0.65 },
+      });
+
+      if (Date.now() < animationEnd) {
+        requestAnimationFrame(shoot);
+      }
+    };
+
+    shoot();
+  }, [winner]);
 
   const settleDialog = (value?: boolean) => {
     const resolver = resolverRef.current;
@@ -273,31 +298,6 @@ const Board = () => {
       {winner && winnerLabel && (
         <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/75">
           <div className="relative flex min-h-52 w-[90%] max-w-md items-center justify-center overflow-hidden rounded-2xl border border-yellow-300/60 bg-zinc-950 px-6 py-8 text-center shadow-2xl">
-            {Array.from({ length: 20 }).map((_, index) => (
-              <motion.span
-                key={index}
-                initial={{
-                  y: -140,
-                  x: ((index % 10) - 5) * 30,
-                  rotate: 0,
-                  opacity: 1,
-                }}
-                animate={{ y: 180, rotate: 360, opacity: [1, 1, 0.2] }}
-                transition={{
-                  duration: 1.6 + (index % 3) * 0.25,
-                  delay: (index % 5) * 0.08,
-                  repeat: Infinity,
-                  ease: "easeOut",
-                }}
-                className="absolute h-2.5 w-2.5 rounded-sm"
-                style={{
-                  left: `${8 + (index % 10) * 9}%`,
-                  top: "-10%",
-                  backgroundColor: confettiColors[index % confettiColors.length],
-                }}
-              />
-            ))}
-
             <div className="relative z-10">
               <p className="text-xs uppercase tracking-[0.3em] text-yellow-200/80">
                 Game Over

@@ -20,8 +20,8 @@ export const createPlayers = (): Player[] => {
   const startIndex = START_TILE_INDEX >= 0 ? START_TILE_INDEX : BOARD_PATH[0];
 
   return [
-    { id: 1, name: "Player 1", color: "bg-rose-500", position: startIndex },
-    { id: 2, name: "Player 2", color: "bg-sky-500", position: startIndex },
+    { id: 1, name: "Player 1", color: "bg-emerald-400", position: startIndex },
+    { id: 2, name: "Player 2", color: "bg-blue-500", position: startIndex },
   ];
 };
 
